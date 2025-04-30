@@ -1,0 +1,21 @@
+{
+	"format_version": 2,
+	"header": {
+		"name": "Oraira",
+		"description": "Oraira Resource Pack",
+		"uuid": "9e359edc-da11-04c2-ecd6-d459cb7ac0d4",
+		"version": [1, 0, 0],
+		"min_engine_version": [1, 16, 0]
+	},
+	"metadata": {
+		"authors": ["Max Verstappen", "hypertext_reborn"]
+	},
+	"modules": [
+		{
+			"description": "Oraira",
+			"type": "resources",
+			"uuid": "f6d281c0-a87f-7fc2-0b67-959156ee1d63",
+			"version": [1, 0, 0]
+		}
+	]
+}

@@ -1,0 +1,121 @@
+{
+    "namespace": "hud_stamina",
+
+    "stamina_bar_1": {
+        "$update_string": "stamina1:",
+        "type": "image",
+        "texture": "textures/ui/bar_1_empty", // image background that will show when bar is not filled
+        "size": [6, 70],
+        "offset": [50, 0],
+        "layer": 2,
+        "controls": [
+            {
+                "progress": { // the image that'll fill the empty bar
+                    "type": "image",
+                    "size": ["100%", "100%"],
+                    "layer": 5,
+                    "$one": 1,
+                    "$max_stamina": 20.0,
+                    "clip_direction": "down",
+                    "clip_pixelperfect": false,
+                    "texture": "textures/ui/stamina_bar_filler",
+                    "bindings": [
+                        {
+                            "binding_type": "view",
+                            "source_control_name": "data_control",
+                            "source_property_name": "((#preserved_text - $update_string) * $one)",
+                            "target_property_name": "#stamina"
+                        },
+                        {
+                            "binding_type": "view",
+                            "source_property_name": "(($max_stamina - #stamina) / $max_stamina)",
+                            "target_property_name": "#clip_ratio"
+                        }
+                    ],
+                    "controls": [
+                        {
+                            "data_control": {
+                                "type": "panel",
+                                "size": [0, 0],
+                                "bindings": [
+                                    {
+                                        "binding_name": "#hud_title_text_string"
+                                    },
+                                    {
+                                        "binding_name": "#hud_title_text_string",
+                                        "binding_name_override": "#preserved_text",
+                                        "binding_condition": "visibility_changed"
+                                    },
+                                    {
+                                        "binding_type": "view",
+                                        "source_property_name": "(not (#hud_title_text_string = #preserved_text) and not ((#hud_title_text_string - $update_string) = #hud_title_text_string))",
+                                        "target_property_name": "#visible"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+
+    "stamina_bar_2": {
+        "$update_string": "stamina2:",
+        "type": "image",
+        "texture": "textures/ui/bar_2_empty", // image background that will show when bar is not filled
+        "size": [6, 70],
+        "offset": [-50, 0],
+        "layer": 3,
+        "controls": [
+            {
+                "progress": { // the image that'll fill the empty bar
+                    "type": "image",
+                    "size": ["100%", "100%"],
+                    "layer": 2,
+                    "$one": 1,
+                    "$max_stamina": 100.0,
+                    "clip_direction": "down",
+                    "clip_pixelperfect": false,
+                    "texture": "textures/ui/stamina_bar_filler",
+                    "bindings": [
+                        {
+                            "binding_type": "view",
+                            "source_control_name": "data_control",
+                            "source_property_name": "((#preserved_text - $update_string) * $one)",
+                            "target_property_name": "#stamina"
+                        },
+                        {
+                            "binding_type": "view",
+                            "source_property_name": "(($max_stamina - #stamina) / $max_stamina)",
+                            "target_property_name": "#clip_ratio"
+                        }
+                    ],
+                    "controls": [
+                        {
+                            "data_control": {
+                                "type": "panel",
+                                "size": [0, 0],
+                                "bindings": [
+                                    {
+                                        "binding_name": "#hud_title_text_string"
+                                    },
+                                    {
+                                        "binding_name": "#hud_title_text_string",
+                                        "binding_name_override": "#preserved_text",
+                                        "binding_condition": "visibility_changed"
+                                    },
+                                    {
+                                        "binding_type": "view",
+                                        "source_property_name": "(not (#hud_title_text_string = #preserved_text) and not ((#hud_title_text_string - $update_string) = #hud_title_text_string))",
+                                        "target_property_name": "#visible"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

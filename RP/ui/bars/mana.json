@@ -1,0 +1,119 @@
+{
+    "namespace": "hud_mana",
+
+    "mana_bar_1": {
+        "$update_string": "mana1:",
+        "type": "image",
+        "texture": "textures/ui/bar_1_empty", // image background that will show when bar is not filled
+        "size": [6, 70],
+        "offset": [20, 0],
+        "controls": [
+            {
+                "progress": { // the image that'll fill the empty bar
+                    "type": "image",
+                    "size": ["100%", "100%"],
+                    "layer": 1,
+                    "$one": 1,
+                    "$max_mana": 100.0,
+                    "clip_direction": "down",
+                    "clip_pixelperfect": false,
+                    "texture": "textures/ui/mana_bar_filler",
+                    "bindings": [
+                        {
+                            "binding_type": "view",
+                            "source_control_name": "data_control",
+                            "source_property_name": "((#preserved_text - $update_string) * $one)",
+                            "target_property_name": "#mana"
+                        },
+                        {
+                            "binding_type": "view",
+                            "source_property_name": "(($max_mana - #mana) / $max_mana)",
+                            "target_property_name": "#clip_ratio"
+                        }
+                    ],
+                    "controls": [
+                        {
+                            "data_control": {
+                                "type": "panel",
+                                "size": [0, 0],
+                                "bindings": [
+                                    {
+                                        "binding_name": "#hud_title_text_string"
+                                    },
+                                    {
+                                        "binding_name": "#hud_title_text_string",
+                                        "binding_name_override": "#preserved_text",
+                                        "binding_condition": "visibility_changed"
+                                    },
+                                    {
+                                        "binding_type": "view",
+                                        "source_property_name": "(not (#hud_title_text_string = #preserved_text) and not ((#hud_title_text_string - $update_string) = #hud_title_text_string))",
+                                        "target_property_name": "#visible"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    },
+
+    "mana_bar_2": {
+        "$update_string": "mana2:",
+        "type": "image",
+        "texture": "textures/ui/bar_2_empty", // image background that will show when bar is not filled
+        "size": [6, 70],
+        "offset": [-20, 0],
+        "controls": [
+            {
+                "progress": { // the image that'll fill the empty bar
+                    "type": "image",
+                    "size": ["100%", "100%"],
+                    "layer": 1,
+                    "$one": 1,
+                    "$max_mana": 100.0,
+                    "clip_direction": "down",
+                    "clip_pixelperfect": false,
+                    "texture": "textures/ui/mana_bar_filler",
+                    "bindings": [
+                        {
+                            "binding_type": "view",
+                            "source_control_name": "data_control",
+                            "source_property_name": "((#preserved_text - $update_string) * $one)",
+                            "target_property_name": "#mana"
+                        },
+                        {
+                            "binding_type": "view",
+                            "source_property_name": "(($max_mana - #mana) / $max_mana)",
+                            "target_property_name": "#clip_ratio"
+                        }
+                    ],
+                    "controls": [
+                        {
+                            "data_control": {
+                                "type": "panel",
+                                "size": [0, 0],
+                                "bindings": [
+                                    {
+                                        "binding_name": "#hud_title_text_string"
+                                    },
+                                    {
+                                        "binding_name": "#hud_title_text_string",
+                                        "binding_name_override": "#preserved_text",
+                                        "binding_condition": "visibility_changed"
+                                    },
+                                    {
+                                        "binding_type": "view",
+                                        "source_property_name": "(not (#hud_title_text_string = #preserved_text) and not ((#hud_title_text_string - $update_string) = #hud_title_text_string))",
+                                        "target_property_name": "#visible"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+}

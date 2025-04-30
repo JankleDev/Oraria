@@ -1,0 +1,32 @@
+{
+	"format_version": "1.19.0",
+	"animation_controllers": {
+		"controller.animation.single_hand_sword_attack": {
+			"states": {
+				"1": {
+					"animations": ["single_hand_sword_attack1"],
+					"transitions": [
+						{"2": "query.all_animations_finished && !variable.is_first_person && variable.holding_single_hand_sword && v.attack_time"},
+						{"default": "query.all_animations_finished && (variable.is_first_person || !variable.holding_single_hand_sword || !v.attack_time)"}
+					],
+					"blend_transition": 0.15
+				},
+				"2": {
+					"animations": ["single_hand_sword_attack2"],
+					"transitions": [
+						{"1": "query.all_animations_finished && !variable.is_first_person && variable.holding_single_hand_sword && v.attack_time"},
+						{"default": "query.all_animations_finished && (variable.is_first_person || !variable.holding_single_hand_sword || !v.attack_time)"}
+					],
+					"blend_transition": 0.15
+				},
+				"default": {
+					"transitions": [
+						{"1": "query.all_animations_finished && !variable.is_first_person && variable.holding_single_hand_sword && v.attack_time"},
+						{"2": "query.all_animations_finished && !variable.is_first_person && variable.holding_single_hand_sword && v.attack_time"}
+					],
+					"blend_transition": 0.15
+				}
+			}
+		}
+	}
+}

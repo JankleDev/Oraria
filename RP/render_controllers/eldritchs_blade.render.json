@@ -1,0 +1,19 @@
+{
+	"format_version": "1.8.0",
+	"render_controllers": {
+		"controller.render.eldritchs_blade": {
+			"geometry": "geometry.eldritchs_blade",
+			"textures": ["texture.eldritchs_blade"],
+			"materials": [
+				{
+					"*": "material.weapon_alpha"
+				}
+			],
+			"part_visibility": [
+				{
+					"*": "v.holding_eldritchs_blade"
+				}
+			]
+		}
+	}
+}

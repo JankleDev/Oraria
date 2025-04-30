@@ -1,0 +1,151 @@
+{
+	"namespace": "hud_health",
+	"health_bar_1": {
+		"$update_string": "health1:",
+		"type": "image",
+		"layer": 2,
+		"texture": "textures/ui/bar_1_empty",
+		"size": [
+			6,
+			70
+		],
+		"offset": [
+			120,
+			0
+		],
+		"controls": [
+			{
+				"progress": {
+					"type": "image",
+					"size": [
+						"100%",
+						"100%"
+					],
+					"layer": 1,
+					"$one": 1,
+					"$max_health": 100.0,
+					"clip_direction": "down",
+					"clip_pixelperfect": false,
+					"texture": "textures/ui/health_bar_filler",
+					"bindings": [
+						{
+							"binding_type": "view",
+							"source_control_name": "data_control",
+							"source_property_name": "((#preserved_text - $update_string) * $one)",
+							"target_property_name": "#health"
+						},
+						{
+							"binding_type": "view",
+							"source_property_name": "(($max_health - #health) / $max_health)",
+							"target_property_name": "#clip_ratio"
+						}
+					],
+					"controls": [
+						{
+							"data_control": {
+								"type": "panel",
+								"size": [
+									0,
+									0
+								],
+								"bindings": [
+									{
+										"binding_name": "#hud_title_text_string"
+									},
+									{
+										"binding_name": "#hud_title_text_string",
+										"binding_name_override": "#preserved_text",
+										"binding_condition": "visibility_changed"
+									},
+									{
+										"binding_type": "view",
+										"source_property_name": "(not (#hud_title_text_string = #preserved_text) and not ((#hud_title_text_string - $update_string) = #hud_title_text_string))",
+										"target_property_name": "#visible"
+									}
+								]
+							}
+						}
+					]
+				}
+			}
+		]
+	},
+	"health_bar_2": {
+		"$update_string": "health2:",
+		"type": "image",
+		"texture": "textures/ui/bar_2_empty",
+		"size": [
+			6,
+			70
+		],
+		"offset": [
+			-120,
+			0
+		],
+		"controls": [
+			{
+				"progress": {
+					"type": "image",
+					"size": [
+						"100%",
+						"100%"
+					],
+					"layer": 1,
+					"$one": 1,
+					"$max_health": 100.0,
+					"clip_direction": "down",
+					"clip_pixelperfect": false,
+					"texture": "textures/ui/health_bar_filler",
+					"bindings": [
+						{
+							"binding_type": "view",
+							"source_control_name": "data_control",
+							"source_property_name": "((#preserved_text - $update_string) * $one)",
+							"target_property_name": "#health"
+						},
+						{
+							"binding_type": "view",
+							"source_property_name": "(($max_health - #health) / $max_health)",
+							"target_property_name": "#clip_ratio"
+						}
+					],
+					"controls": [
+						{
+							"data_control": {
+								"type": "panel",
+								"size": [
+									0,
+									0
+								],
+								"bindings": [
+									{
+										"binding_name": "#hud_title_text_string"
+									},
+									{
+										"binding_name": "#hud_title_text_string",
+										"binding_name_override": "#preserved_text",
+										"binding_condition": "visibility_changed"
+									},
+									{
+										"binding_type": "view",
+										"source_property_name": "(not (#hud_title_text_string = #preserved_text) and not ((#hud_title_text_string - $update_string) = #hud_title_text_string))",
+										"target_property_name": "#visible"
+									}
+								]
+							}
+						}
+					]
+				}
+			}
+		]
+	},
+	"health_bar_factory": {
+		"type": "panel",
+		"factory": {
+			"name": "hud_title_text_factory",
+			"control_ids": {
+				"hud_title_text": "health_bar_1@hud_health.health_bar_1"
+			}
+		}
+	}
+}
