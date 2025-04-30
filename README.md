@@ -1,2 +1,2 @@
 # Oraria
-Fun side project: rpg darksouls like addon
+Fun side project
