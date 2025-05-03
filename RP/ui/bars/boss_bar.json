@@ -1,0 +1,82 @@
+{
+	"namespace": "hud_bossbar",
+	"bossbar_bar_1": {
+		"$update_string": "bossbar1:",
+		"type": "image",
+		"layer": 1,
+		"texture": "textures/ui/bar_empty",
+		"size": [
+			256,
+			12
+		],
+		"offset": [
+			0,
+			50
+		],
+		"controls": [
+			{
+				"progress": {
+					"type": "image",
+					"size": [
+						"100%",
+						"100%"
+					],
+					"layer": 2,
+					"$one": 1,
+					"$max_bossbar": 100.0,
+					"clip_direction": "left",
+					"clip_pixelperfect": true,
+					"texture": "textures/ui/bossbar_bar",
+					"bindings": [
+						{
+							"binding_type": "view",
+							"source_control_name": "data_control",
+							"source_property_name": "((#preserved_text - $update_string) * $one)",
+							"target_property_name": "#bossbar"
+						},
+						{
+							"binding_type": "view",
+							"source_property_name": "(($max_bossbar - #bossbar) / $max_bossbar)",
+							"target_property_name": "#clip_ratio"
+						}
+					],
+					"controls": [
+						{
+							"data_control": {
+								"type": "panel",
+								"size": [
+									0,
+									0
+								],
+								"bindings": [
+									{
+										"binding_name": "#hud_title_text_string"
+									},
+									{
+										"binding_name": "#hud_title_text_string",
+										"binding_name_override": "#preserved_text",
+										"binding_condition": "visibility_changed"
+									},
+									{
+										"binding_type": "view",
+										"source_property_name": "(not (#hud_title_text_string = #preserved_text) and not ((#hud_title_text_string - $update_string) = #hud_title_text_string))",
+										"target_property_name": "#visible"
+									}
+								]
+							}
+						}
+					]
+				}
+			}
+		]
+	},
+	"bossbar_bar_factory": {
+		"type": "panel",
+		"factory": {
+			"name": "hud_title_text_factory",
+			"control_ids": {
+				"hud_title_text": "bossbar_bar_1@hud_bossbar.bossbar_bar_1"
+			}
+		}
+	}
+}

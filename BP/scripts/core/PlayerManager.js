@@ -1,6 +1,6 @@
 import { world, Player } from "@minecraft/server";
 import { RPGPlayer } from "../character/RPGPlayer.js";
-import { LError } from "../util/LError.js";
+import { Errors } from "../util/Errors.js";
 import { Oraria } from "../Oraria.js";
 
 export class PlayerManager {
@@ -35,7 +35,7 @@ export class PlayerManager {
 			// Get by Player object
 			return this.#players.get(playerRef.id) ?? null;
 		}
-		return LError.FAILED_PLAYER_REF_SEARCH;
+		return Errors.FAILED_PLAYER_REF_SEARCH;
 	}
 
 	static getAll() {

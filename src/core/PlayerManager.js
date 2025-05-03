@@ -1,6 +1,6 @@
 import { world, Player } from "@minecraft/server";
 import { RPGPlayer } from "../character/RPGPlayer.js";
-import { LError } from "../util/LError.js";
+import { Errors } from "../util/Errors.js";
 import { Oraria } from "../Oraria.js";
 
 export class PlayerManager {
@@ -16,12 +16,13 @@ export class PlayerManager {
 				const data = Oraria.playerStorage.getPlayerData(rpgPlayer, true);
 				rpgPlayer.initEntity(data);
 			} catch (error) {
-				console.error(`Failed to init player ${player.name}: ${error}`);
+				console.warn(`Failed to init player ${player.name}: ${error}`);
 			}
 		});
 
 		world.beforeEvents.playerLeave.subscribe(({ playerId }) => {
 			const player = this.get(playerId);
+			console.log("onLeave from PlayerManager.js: ", JSON.stringify(player, null, 2));
 			player?.onLeave();
 			this.#players.delete(playerId);
 		});
@@ -30,12 +31,13 @@ export class PlayerManager {
 	static get(playerRef) {
 		if (typeof playerRef === "string") {
 			// Find by name or ID
+			// Work around hack, need to change this so we get player object by world.getEntities(name) and then get their .id to fetch from this table, should be faster than running through this array of rpgPlayers.
 			return [...this.#players.values()].find((p) => p.name === playerRef || p.id === playerRef) ?? null;
 		} else if (playerRef?.id) {
 			// Get by Player object
 			return this.#players.get(playerRef.id) ?? null;
 		}
-		return LError.FAILED_PLAYER_REF_SEARCH;
+		return Errors.FAILED_PLAYER_REF_SEARCH;
 	}
 
 	static getAll() {

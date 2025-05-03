@@ -1,5 +1,5 @@
 import { world, system, Entity } from "@minecraft/server";
-import { LError } from "../util/LError.js";
+import { Errors } from "../util/Errors.js";
 
 export class HitboxSystem {
 	static HITBOX_TYPE_ID = "oraria:hitbox";
@@ -65,7 +65,7 @@ export class HitboxSystem {
 			if (registerIfMissing === true) {
 				this.registerPlayer(player);
 			}
-			return LError.VALIDATION_FALIED;
+			return Errors.VALIDATION_FALIED;
 		}
 	}
 
