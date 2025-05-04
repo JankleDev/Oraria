@@ -1,11 +1,13 @@
 import * as mc from "@minecraft/server";
 import { Oraria } from "../Oraria.js";
+import { HUDDisplay } from "./HUDDisplay.js";
 import { Attributes } from "../entity/attribute/Attributes.js";
 
 export class RPGPlayer {
 	#player;
 	initialized;
 	attributes;
+	screenDisplay;
 
 	constructor(player) {
 		if (!player?.isValid) throw new Error("Invalid player entity");
@@ -13,6 +15,7 @@ export class RPGPlayer {
 		this.initialized = false;
 
 		this.attributes = new Attributes(this);
+		this.screenDisplay = new HUDDisplay(player);
 	}
 
 	get id() {
@@ -26,16 +29,10 @@ export class RPGPlayer {
 	}
 
 	initEntity(data) {
-		Oraria.hitboxSystem.registerPlayer(this.#player);
+		HitboxSystem.removePlayer(this.#player);
 		this.attributes.loadData(data.attributes);
-		console.log(data);
 
 		this.initialized = true;
-	}
-
-	emit(event) {
-		world.sendMessage(`Event: ${event} from ${this.name}`);
-		// Add custom event logic here
 	}
 
 	saveEverything() {
@@ -47,6 +44,6 @@ export class RPGPlayer {
 
 	onLeave() {
 		this.saveEverything();
-		Oraria.hitboxSystem.removePlayer(this.#player);
+		HitboxSystem.removePlayer(this.#player);
 	}
 }

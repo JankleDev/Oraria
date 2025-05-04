@@ -25,7 +25,7 @@
 					"$one": 1,
 					"$max_bossbar": 100.0,
 					"clip_direction": "left",
-					"clip_pixelperfect": true,
+					"clip_pixelperfect": false,
 					"texture": "textures/ui/bossbar_bar",
 					"bindings": [
 						{

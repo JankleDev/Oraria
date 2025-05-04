@@ -16,13 +16,12 @@ mc.world.afterEvents.itemUse.subscribe((ev) => {
 		hp += 1;
 		if (hp === 100) hp = 0;
 
-		player.onScreenDisplay.setTitle(`health1: ${hp}`, {
+		player.onScreenDisplay.setTitle(`updateHUD:${hp}, ${hp}, ${hp}`, {
 			stayDuration: 1,
 			fadeInDuration: 0,
 			fadeOutDuration: 0,
-			subtitle: "",
+			subtitle: `updateHUD:${hp}, ${hp}, ${hp}`,
 		});
-		player.sendMessage("sent");
 	}, 5);
 	/*
 	    mc.system.runInterval(() => {

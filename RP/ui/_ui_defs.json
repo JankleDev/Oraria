@@ -1,6 +1,6 @@
 {
   // Alphabetical order please :)
   "ui_defs": [
-    "ui/bars/health.json"
+    "ui/bars/custom_hud.json"
     ]
 }
