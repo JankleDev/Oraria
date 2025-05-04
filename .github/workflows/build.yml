@@ -1,0 +1,59 @@
+name: Build and Deploy
+
+on:
+    push:
+        branches: [main]
+    workflow_dispatch:
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Setup build environment
+              run: |
+                  mkdir -p BP/scripts
+                  rm -rf BP/scripts/* || true
+
+            - name: Copy JavaScript files
+              run: |
+                  find src -type f -name "*.js" | while read -r file; do
+                    rel_path="${file#src/}"
+                    target_dir="BP/scripts/$(dirname "$rel_path")"
+                    mkdir -p "$target_dir"
+                    cp "$file" "BP/scripts/$rel_path"
+                    echo "Copied: $file -> BP/scripts/$rel_path"
+                  done
+
+            - name: Verify file structure
+              run: |
+                  echo "Generated file structure:"
+                  find BP/scripts -type f | sed 's|BP/scripts/||' | sort | while read -r line; do
+                    echo "  $line"
+                  done
+
+            - name: Create build directory
+              run: mkdir -p build
+
+            - name: Package addon
+              run: |
+                  if [ -f build/addon.mcpack ]; then
+                    mv build/addon.mcpack build/addon_previous.mcpack
+                    echo "Archived previous build as addon_previous.mcpack"
+                  fi
+
+                  zip -r build/addon.mcpack BP RP
+                  echo "Created new package: build/addon.mcpack"
+
+            - name: Upload artifact
+              uses: actions/upload-artifact@v3
+              with:
+                  name: minecraft-addon
+                  path: build/addon.mcpack
+                  retention-days: 7
+
+            - name: Output completion
+              run: echo "Build process completed successfully. Artifact available for download."

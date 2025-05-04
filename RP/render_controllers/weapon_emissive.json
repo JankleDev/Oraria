@@ -1,0 +1,21 @@
+{
+	"format_version": "1.8.0",
+	"render_controllers": {
+		"controller.render.weapon.emissive": {
+			"geometry": "geometry.weapon",
+			"textures": [
+				"texture.weapon_emissive"
+			],
+			"materials": [
+				{
+					"*": "material.weapon_emissive"
+				}
+			],
+			"part_visibility": [
+				{
+					"*": "v.has_weapon"
+				}
+			]
+		}
+	}
+}

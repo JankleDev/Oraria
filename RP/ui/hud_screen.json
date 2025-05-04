@@ -1,0 +1,32 @@
+{
+	"namespace": "hud",
+
+	"hud_title_text/title_frame/title": {
+		"modifications": [
+			{
+				"array_name": "bindings",
+				"operation": "insert_back",
+				"value": [
+					{
+						"binding_type": "view",
+						"source_property_name": "(#text = 'hide title')",
+						"target_property_name": "#visible"
+					}
+				]
+			}
+		]
+	},
+	"root_panel": {
+		"modifications": [
+			{
+				"array_name": "controls",
+				"operation": "insert_back",
+				"value": [
+					{
+						"bars_factory@custom_hud.bars_factory": {}
+					}
+				]
+			}
+		]
+	}
+}

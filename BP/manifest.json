@@ -1,0 +1,38 @@
+{
+	"format_version": 2,
+	"header": {
+		"name": "Oraria",
+		"description": "A rising rpg",
+		"uuid": "208a8844-b6db-4f46-b271-1909d59b6550",
+		"version": [1, 2, 0],
+		"min_engine_version": [1, 16, 0]
+	},
+	"modules": [
+		{
+			"type": "script",
+			"language": "javascript",
+			"uuid": "1689f66c-6197-4db3-9fb2-fee1163a8d8b",
+			"version": [1, 2, 0],
+			"entry": "scripts/main.js"
+		},
+		{
+			"type": "data",
+			"uuid": "abd7fb0e-73f7-40f6-ae17-a4a9857c0e31",
+			"version": [1, 2, 0]
+		}
+	],
+	"dependencies": [
+		{
+			"uuid": "17f8ea34-9e48-4353-90a2-40e6bba2bcc7",
+			"version": [
+				1,
+				2,
+				0
+			]
+		},
+		{
+			"module_name": "@minecraft/server",
+			"version": "2.0.0-beta"
+		}
+	]
+}

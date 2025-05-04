@@ -1,0 +1,174 @@
+{
+	"namespace": "custom_hud",
+	"centered_hud": {
+		"type": "panel",
+		"anchor_from": "bottom_middle",
+		"anchor_to": "bottom_middle",
+		"size": [
+			162,
+			60
+		],
+		"controls": [
+			{
+				"calculate_hud@custom_hud.calculate_hud": {}
+			},
+			{
+				"health_renderer@health_renderer": {
+					"offset": [
+						-1,
+						-70
+					],
+					"anchor_from": "bottom_left",
+					"anchor_to": "bottom_left"
+				}
+			},
+			{
+				"focus_renderer@focus_renderer": {
+					"offset": [
+						-1,
+						-40
+					],
+					"anchor_from": "bottom_right",
+					"anchor_to": "bottom_right"
+				}
+			}
+		]
+	},
+	"health_renderer": {
+		"type": "image",
+		"layer": 1,
+		"texture": "textures/ui/bar_empty",
+		"size": [
+			162,
+			13
+		],
+		"controls": [
+			{
+				"progress": {
+					"type": "image",
+					"size": [
+						"100%",
+						"100%"
+					],
+					"layer": 2,
+					"$one": 1,
+					"$max_clip": 100.0,
+					"clip_direction": "left",
+					"clip_pixelperfect": false,
+					"texture": "textures/ui/health_bar",
+					"bindings": [
+						{
+							"binding_type": "view",
+							"source_control_name": "preserved_title_display",
+							"source_property_name": "(($max_clip - #health) / $max_clip)",
+							"target_property_name": "#clip_ratio"
+						}
+					]
+				}
+			}
+		]
+	},
+	"focus_renderer": {
+		"type": "image",
+		"layer": 1,
+		"texture": "textures/ui/bar_empty",
+		"size": [
+			162,
+			13
+		],
+		"controls": [
+			{
+				"progress": {
+					"type": "image",
+					"size": [
+						"100%",
+						"100%"
+					],
+					"layer": 2,
+					"$one": 1,
+					"$max_clip": 100.0,
+					"clip_direction": "left",
+					"clip_pixelperfect": false,
+					"texture": "textures/ui/focus_bar",
+					"bindings": [
+						{
+							"binding_type": "view",
+							"source_control_name": "preserved_title_display",
+							"source_property_name": "(($max_clip - #focus) / $max_clip)",
+							"target_property_name": "#clip_ratio"
+						}
+					]
+				}
+			}
+		]
+	},
+	"calculate_hud": {
+		"type": "panel",
+		"controls": [
+			{
+				"preserved_title_display": {
+					"$update_string": "updateHUD",
+					"type": "label",
+					"text": "#text",
+					"offset": [
+						0,
+						20000
+					],
+					"controls": [
+						{
+							"data_control": {
+								"type": "panel",
+								"size": [
+									0,
+									0
+								],
+								"bindings": [
+									{
+										"binding_name": "#hud_title_text_string"
+									},
+									{
+										"binding_name": "#hud_title_text_string",
+										"binding_name_override": "#preserved_text",
+										"binding_condition": "visibility_changed"
+									}
+								]
+							}
+						}
+					],
+					"bindings": [
+						{
+							"binding_type": "view",
+							"source_control_name": "data_control",
+							"source_property_name": "(#preserved_text - $update_string)",
+							"target_property_name": "#text"
+						},
+						{
+							"binding_type": "view",
+							"source_property_name": "(#text - ':')",
+							"target_property_name": "#health"
+						},
+						{
+							"binding_type": "view",
+							"source_property_name": "(#text - (':' + #health + ', ')",
+							"target_property_name": "#focus"
+						},
+						{
+							"binding_type": "view",
+							"source_property_name": "(#text - (':' + #health + ', ' + #focus + ', ')",
+							"target_property_name": "#stamina"
+						}
+					]
+				}
+			}
+		]
+	},
+	"bars_factory": {
+		"type": "panel",
+		"factory": {
+			"name": "hud_title_text_factory",
+			"control_ids": {
+				"hud_title_text": "centered_hud@custom_hud.centered_hud"
+			}
+		}
+	}
+}
