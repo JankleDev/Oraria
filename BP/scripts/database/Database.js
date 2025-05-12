@@ -1,25 +1,38 @@
-import { world } from "@minecraft/server";
-import { ChunkedStorage } from "./ChunkedStorage.js";
-import { PlayerStorage } from "./PlayerStorage.js";
-
+import { PlayerStorage } from "./PlayerStorage";
+// import { EconomySystem } from "./EconomySystem";
+// import { WorldDataSystem } from "./WorldDataSystem";
 export class Database {
-	constructor() {
-
-		// Player data storage system
-		this.playerStorage = new PlayerStorage();
-
-		// Economy system
-		// this.economy = new EconomySystem(this.worldStorage);
-
-		// World data system
-		// this.worldData = new WorldDataSystem(this.worldStorage);
-	}
-
-	// Save all data to world properties
-	saveAll() {
-		this.playerStorage.saveAll();
-		// this.worldData.save();
-	}
+    // private readonly economy: EconomySystem;
+    // private readonly worldData: WorldDataSystem;
+    constructor() {
+        this.playerStorage = new PlayerStorage();
+        // Uncomment when implementing
+        // this.economy = new EconomySystem(this.getStorage());
+        // this.worldData = new WorldDataSystem(this.getStorage());
+    }
+    /**
+     * Initialize all async database systems
+     */
+    /*public async initialize(): Promise<void> {
+        try {
+            await this.playerStorage.initialize();
+            // await this.economy.initialize();
+            // await this.worldData.initialize();
+        } catch (error) {
+            console.error("[Database] Initialization failed:", error);
+        }
+    }*/
+    /**
+     * Save all critical data to persistent storage
+     */
+    saveAll() {
+        try {
+            this.playerStorage.saveAll();
+            // this.economy.saveAll();
+            // this.worldData.save();
+        }
+        catch (error) {
+            console.error("[Database] Save failed:", error);
+        }
+    }
 }
-
-// Helper class for chunked storage

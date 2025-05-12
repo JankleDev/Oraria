@@ -1,0 +1,167 @@
+class RollSystem {
+    constructor(configuration, playerData) {
+        this.configuration = configuration;
+        this.playerData = playerData;
+        this.rollCooldown = {};
+        this.rollTime = {};
+    }
+    // Main method to handle roll logic
+    handleRoll(time, vel, stamina_is_cooldown, player_is_climb, player_use_item, manuver, stamina_exhausted, stamina_amplification, multiplier_stamina, roll_style) {
+        if (!this.checkRollEnabled())
+            return false;
+        if (this.handleCooldown(time, ui_data, roll_style, multiplier_stamina)) {
+            return true;
+        }
+        if (!this.checkMidAirRoll())
+            return false;
+        if (this.checkRollRestrictions(stamina_is_cooldown))
+            return false;
+        return this.processRollAction(time, vel, player_is_climb, player_use_item, manuver, stamina_exhausted, stamina_amplification, multiplier_stamina, fatigue_data, fatigue);
+    }
+    // Check if rolling is enabled in configuration
+    checkRollEnabled() {
+        return this.configuration.getValue("rns:roll");
+    }
+    // Check if mid-air rolls are allowed
+    checkMidAirRoll() {
+        return this.configuration.getValue("rns:mid_air_roll") || this.playerData.isOnGround;
+    }
+    // Check various roll restrictions
+    checkRollRestrictions(stamina_is_cooldown) {
+        return (this.playerData.isInWater || this.isUsingRope(this.playerData) || stamina_is_cooldown[this.playerData.id]);
+    }
+    // Handle roll cooldown logic
+    handleCooldown(time, ui_data, roll_style, multiplier_stamina) {
+        const playerId = this.playerData.id;
+        if (this.rollCooldown[playerId] === undefined || this.rollCooldown[playerId] === -1) {
+            return false;
+        }
+        let cooldown_delta = time - this.rollCooldown;
+        cooldown_delta = parseInt((cooldown_delta / 6 / multiplier_stamina) * (this.configuration.getValue("rns:roll_cooldown") + 1));
+        if (cooldown_delta <= 15) {
+            if (roll_style !== 0)
+                ui_data[playerId].roll = cooldown_delta;
+            return true;
+        }
+        else {
+            this.rollCooldown[playerId] = -1;
+            return false;
+        }
+    }
+    // Process the actual roll action
+    processRollAction(time, vel, player_is_climb, player_use_item, manuver, stamina_exhausted, stamina_amplification, multiplier_stamina, fatigue_data, fatigue) {
+        const playerId = this.playerData.id;
+        if (this.playerData.isSneaking) {
+            this.startRollTimer(time, playerId);
+            return false;
+        }
+        else {
+            return this.executeRoll(time, vel, player_is_climb, player_use_item, manuver, stamina_exhausted, stamina_amplification, multiplier_stamina, fatigue_data, fatigue, playerId);
+        }
+    }
+    // Start the roll timer when player sneaks
+    startRollTimer(time, playerId) {
+        if (this.rollTime[playerId] === -1 || this.rollTime[playerId] === undefined) {
+            this.rollTime[playerId] = time;
+        }
+    }
+    // Execute the roll when conditions are met
+    executeRoll(time, vel, player_is_climb, player_use_item, manuver, stamina_exhausted, stamina_amplification, multiplier_stamina, fatigue_data, fatigue, playerId) {
+        this.playerData.isSneaking = false;
+        if (this.rollTime[playerId] === -1 ||
+            this.rollTime[playerId] === undefined ||
+            player_use_item[playerId] !== undefined) {
+            return false;
+        }
+        if (time - this.rollTime[playerId] >= 5 || player_is_climb[playerId] !== undefined) {
+            this.rollTime[playerId] = -1;
+            return false;
+        }
+        this.performRoll(vel, manuver, playerId);
+        this.handleRollEffects(time, stamina_exhausted, stamina_amplification, multiplier_stamina, fatigue_data, fatigue, playerId);
+        this.rollTime[playerId] = -1;
+        return true;
+    }
+    // Perform the actual roll movement and animations
+    performRoll(vel, manuver, playerId) {
+        if (this.configuration.getValue("rns:edge_climb")) {
+            manuver[playerId] = 2;
+        }
+        const rot = this.playerData.getRotation();
+        let rot_temp = Math.floor((Math.atan2(vel.z, vel.x) * 180) / Math.PI - 90);
+        rot_temp = rot_temp < -180 ? rot_temp + 360 : rot_temp;
+        const delta_rot = this.calculateRotationDelta(rot_temp, Math.floor(rot.y));
+        const resistance_value = 1 - this.getResistanceValue(this.playerData);
+        const power = 1;
+        this.applyRollMovement(vel, rot, delta_rot, resistance_value, power);
+        this.playRollAnimations(delta_rot);
+        if (this.configuration.getValue("rns:immune_roll")) {
+            this.playerData.addEffect("resistance", 10, { amplifier: 16, showParticles: false });
+        }
+        this.rollCooldown[playerId] = time;
+        this.playerData.dimension.spawnParticle("rns:move_smoke", this.playerData.location);
+    }
+    // Calculate rotation difference for roll direction
+    calculateRotationDelta(rot_temp, player_rot_y) {
+        let delta_rot = Math.abs(rot_temp - player_rot_y);
+        return Math.min(delta_rot, 360 - delta_rot);
+    }
+    // Apply the roll movement physics
+    applyRollMovement(vel, rot, delta_rot, resistance_value, power) {
+        if (Math.abs(vel.x) + Math.abs(vel.z) > 0.01) {
+            vel = Vector.divide(vel, resistance_value);
+            const verticalMultiplier = delta_rot > 120 ? 0.2 : 0.4;
+            const horizontalMultiplier = delta_rot > 120 ? 1.5 : 1;
+            this.playerData.applyKnockback(vel.x, vel.z, (horizontalMultiplier * 0.2 * this.configuration.getValue("rns:roll_horizontal_strength")) /
+                resistance_value, (verticalMultiplier * this.configuration.getValue("rns:roll_vertical_strength") * 0.05) /
+                resistance_value);
+        }
+        else {
+            const rotY = ((rot.y + 45) * Math.PI) / 180;
+            const velocity = {
+                x: (Math.cos(rotY) - Math.sin(rotY)) * power,
+                y: 0,
+                z: (Math.sin(rotY) + Math.cos(rotY)) * power
+            };
+            const dividedVelocity = Vector.divide(velocity, resistance_value);
+            this.playerData.applyKnockback(dividedVelocity.x, dividedVelocity.z, (0.1 * this.configuration.getValue("rns:roll_horizontal_strength")) / resistance_value, (this.configuration.getValue("rns:roll_vertical_strength") * 0.05) / resistance_value);
+        }
+    }
+    // Play the roll animations
+    playRollAnimations(delta_rot) {
+        const roll_anim = delta_rot > 120 ? "animation.humanoid.roll_down" : "animation.humanoid.roll_up";
+        const roll_anim_def = delta_rot > 120 ? "animation.humanoid.roll_steady2" : "animation.humanoid.roll_steady";
+        this.playerData.playAnimation(roll_anim_def, {
+            blendOutTime: 0.3,
+            controller: "roll_steady_controller"
+        });
+        this.playerData.playAnimation(roll_anim, {
+            controller: "roll_controller"
+        });
+        this.playerData.playAnimation("animation.humanoid.roll_head", {
+            blendOutTime: 1,
+            controller: "roll_head_controller"
+        });
+    }
+    // Handle stamina and fatigue effects from rolling
+    handleRollEffects(time, stamina_exhausted, stamina_amplification, multiplier_stamina, fatigue_data, fatigue, playerId) {
+        if (!this.playerData.getEffect("jump_boost") && this.configuration.getValue("rns:stamina")) {
+            staminaDuration[playerId] += 10 * stamina_exhausted * stamina_amplification * multiplier_stamina;
+            if (this.configuration.getValue("rns:fatigue")) {
+                fatigue += 5 / 2;
+                fatigue = Math.ceil(fatigue);
+                fatigue_data.setScore(this.playerData, Math.min(fatigue, 2048));
+            }
+        }
+    }
+    // Helper method to check if player is using a rope (needs implementation)
+    isUsingRope(playerData) {
+        // Implement your rope checking logic here
+        return false;
+    }
+    // Helper method to get resistance value (needs implementation)
+    getResistanceValue(playerData) {
+        // Implement your resistance calculation logic here
+        return 0;
+    }
+}

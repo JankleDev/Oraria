@@ -1,50 +1,31 @@
-import { Errors } from "../util/Errors.js";
-
 export class HUDDisplay {
-	static = {
-		HEALTH_PRESET_1: "health1:",
-		STAMINA_PRESET_1: "stamina1:",
-		FOCUS_PRESET_1: "focus1:"
-	};
-
-	player;
-	cache = {
-		health: -1,
-		stamina: -1,
-		focus: -1
-	};
-
-	constructor(player) {
-		this.player = player;
-	}
-
-	/*
-	 * data{health: int, stamina: int, focus: int}
-	 */
-	load(data) {
-		try {
-			this.cache = {
-				health: data.health,
-				stamina: data.stamina,
-				focus: data.focus
-			};
-		} catch (err) {
-			console.warn(Errors.PLAYER_HUD_LOAD_FALIED);
-		}
-	}
-
-	/*  convert values to percentage then pass it to json ui, title should look like `playerHud: health, stamina, focus`*/
-	update(health = -1, stamina = -1, focus = -1) {
-		if (health === -1) {
-			if (this.cache.health >= 0) {
-				health = this.cache.health;
-			}
-		}
-		this.player.onScreenDisplay.setTitle(title, {
-			stayDuration: 1,
-			fadeInDuration: 0,
-			fadeOutDuration: 0,
-			subtitle: ""
-		});
-	}
+    constructor(player) {
+        this.cachedHealth = -1;
+        this.cachedMana = -1;
+        this.cachedStamina = -1;
+        this.player = player;
+    }
+    update({ health, maxHealth, mana, maxMana, stamina, maxStamina }) {
+        const healthPercent = health !== undefined && maxHealth !== undefined
+            ? Math.round((health / maxHealth) * 100)
+            : this.cachedHealth;
+        const manaPercent = mana !== undefined && maxMana !== undefined ? Math.round((mana / maxMana) * 100) : this.cachedMana;
+        const staminaPercent = stamina !== undefined && maxStamina !== undefined
+            ? Math.round((stamina / maxStamina) * 100)
+            : this.cachedStamina;
+        if (healthPercent === this.cachedHealth &&
+            manaPercent === this.cachedMana &&
+            staminaPercent === this.cachedStamina)
+            return;
+        this.cachedHealth = healthPercent;
+        this.cachedMana = manaPercent;
+        this.cachedStamina = staminaPercent;
+        const title = `updateHUD:${healthPercent},${manaPercent},${staminaPercent}`;
+        this.player.onScreenDisplay.setTitle(title, {
+            stayDuration: 1,
+            fadeInDuration: 0,
+            fadeOutDuration: 0,
+            subtitle: ""
+        });
+    }
 }
