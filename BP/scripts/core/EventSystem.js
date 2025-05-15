@@ -84,6 +84,8 @@ export class Listener {
      * @param options Optional registration options.
      */
     static register(eventName, callback, options = {}) {
+        if (eventName instanceof Event)
+            eventName = eventName.eventName;
         const handlers = HandlerListManager.getListFor(eventName);
         const registration = {
             callEvent: callback,
@@ -99,6 +101,8 @@ export class Listener {
      * @param callback The callback function to remove.
      */
     static unregister(eventName, callback) {
+        if (eventName instanceof Event)
+            eventName = eventName.eventName;
         const handlers = HandlerListManager.getListFor(eventName);
         const index = handlers.findIndex((h) => h.callEvent === callback);
         if (index !== -1) {
@@ -110,6 +114,8 @@ export class Listener {
      * @param eventName The event name.
      */
     static clear(eventName) {
+        if (eventName instanceof Event)
+            eventName = eventName.eventName;
         HandlerListManager.clearHandlers(eventName);
     }
 }

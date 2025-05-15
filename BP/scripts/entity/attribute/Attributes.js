@@ -124,6 +124,12 @@ export class Attributes {
                 return this.restoreMana(amount);
             case Attributes.ResourceType.FOCUS:
                 return this.restoreFocus(amount);
+            case "all":
+                this.restoreHealth(amount);
+                this.restoreStamina(amount);
+                this.restoreMana(amount);
+                this.restoreFocus(amount);
+                return;
             default:
                 return 0;
         }
@@ -158,8 +164,6 @@ export class Attributes {
             mana: Math.min(this.mana, this.maxMana),
             focus: Math.min(this.focus, this.maxFocus)
         };
-        console.warn(this._maxResources);
-        console.warn(JSON.stringify(this._currentResources, null, 2));
     }
     // --- Defense and Scaling ---
     getDefenseRating(damageType) {
@@ -217,7 +221,7 @@ export class Attributes {
             v: 1
         };
     }
-    loadData(data) {
+    load(data) {
         try {
             const saveData = typeof data === "string" ? JSON.parse(data) : data;
             if (!saveData.b || saveData.b.length !== 7) {
@@ -234,6 +238,7 @@ export class Attributes {
                 this._baseAttributes.arcane
             ] = saveData.b;
             this.updateAllStats();
+            this.fillResource('all');
             return true;
         }
         catch (e) {

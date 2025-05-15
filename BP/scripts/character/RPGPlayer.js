@@ -12,15 +12,18 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var _RPGPlayer_player;
 import * as mc from "@minecraft/server";
 import { Oraria } from "../Oraria";
-import { HUDDisplay } from "./HUDDisplay";
 import { Entity } from "../entity/Entity";
+import { HUDDisplay } from "./HUDDisplay";
+import { Listener } from "../core/EventSystem";
 import { HitboxSystem } from "../core/HitboxSystem";
+import { PlayerInteractEvent } from "../events/PlayerInteractEvent";
 export class RPGPlayer extends Entity {
     constructor(player) {
         super(player);
         _RPGPlayer_player.set(this, void 0);
-        this.ROLL_COOLDOWN = 15; // in ticks
         this.startAction = -1;
+        this.ROLL_COOLDOWN = 5; // in ticks
+        this.ATTACK_COOLDOWN = 3;
         this.shouldTick = true;
         if (!player?.isValid)
             throw new Error("Invalid player entity");
@@ -42,7 +45,8 @@ export class RPGPlayer extends Entity {
         __classPrivateFieldGet(this, _RPGPlayer_player, "f").sendMessage(message);
     }
     initEntity(data) {
-        this.attributes.loadData(data.attributes);
+        this.attributes.load(data.attributes);
+        //	this.attributes.recalculate(true);
         // Update hud for the first time to mark it visible
         this.hud.update({
             health: this.attributes.health,
@@ -52,6 +56,32 @@ export class RPGPlayer extends Entity {
             stamina: this.attributes.stamina,
             maxStamina: this.attributes.maxStamina
         });
+        // Register listener for detecting clicks
+        Listener.register(PlayerInteractEvent.NAME, (event) => {
+            const { player, viewDir, action } = event;
+            const currentTick = mc.system.currentTick;
+            // Only trigger if player recently left-clicked (within cooldown window)
+            if (action === PlayerInteractEvent.LEFT_CLICK &&
+                currentTick - this.lastLeftClick <= this.ATTACK_COOLDOWN) {
+                const origin = player.location;
+                const nearbyEntities = player.dimension.getEntities({
+                    location: origin,
+                    maxDistance: 6
+                });
+                for (const entity of nearbyEntities) {
+                    const directionToEntity = {
+                        x: entity.location.x - origin.x,
+                        y: entity.location.y - origin.y,
+                        z: entity.location.z - origin.z
+                    };
+                    const angle = calculateAngle(viewDir, directionToEntity);
+                    if (angle >= -45 && angle <= 45) {
+                        player.dimension.spawnParticle("minecraft:basic_flame_particle", entity.getHeadLocation());
+                    }
+                }
+            }
+            this.lastLeftClick = currentTick;
+        }, { priority: 100 });
     }
     onTick(currentTick) {
         if (__classPrivateFieldGet(this, _RPGPlayer_player, "f").isSneaking) {
@@ -72,24 +102,11 @@ export class RPGPlayer extends Entity {
                 this.rollTime = -1; // reset
             }
         }
-        if (currentTick % 5 === 0) {
-            const data = {
-                health: this.attributes.health,
-                maxHealth: this.attributes.maxHealth,
-                mana: this.attributes.mana,
-                maxMana: this.attributes.maxMana,
-                stamina: this.attributes.stamina,
-                maxStamina: this.attributes.maxStamina
-            };
-            this.hud.update({
-                health: this.attributes.health,
-                maxHealth: this.attributes.maxHealth,
-                mana: this.attributes.mana,
-                maxMana: this.attributes.maxMana,
-                stamina: this.attributes.stamina,
-                maxStamina: this.attributes.maxStamina
-            });
-            console.log(JSON.stringify(data, null, 2));
+        if (currentTick % 20 === 0) {
+            const maxStamina = this.attributes.maxStamina;
+            const maxMana = this.attributes.maxMana;
+            this.attributes.restoreStamina(Math.floor(maxStamina * 0.2));
+            this.attributes.restoreMana(Math.floor(maxMana * 0.07));
         }
     }
     isUsingItem() {

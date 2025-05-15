@@ -206,7 +206,7 @@ export class Attributes {
 		return this.focus;
 	}
 
-	fillResource(resourceType: symbol, amount: number = Infinity): number {
+	fillResource(resourceType: symbol | string, amount: number = Infinity): number | void {
 		switch (resourceType) {
 			case Attributes.ResourceType.HEALTH:
 				return this.restoreHealth(amount);
@@ -216,6 +216,12 @@ export class Attributes {
 				return this.restoreMana(amount);
 			case Attributes.ResourceType.FOCUS:
 				return this.restoreFocus(amount);
+			case "all":
+				this.restoreHealth(amount);
+				this.restoreStamina(amount);
+				this.restoreMana(amount);
+				this.restoreFocus(amount);
+				return;
 			default:
 				return 0;
 		}
@@ -254,8 +260,7 @@ export class Attributes {
 			mana: Math.min(this.mana, this.maxMana),
 			focus: Math.min(this.focus, this.maxFocus)
 		};
-		console.warn(this._maxResources);
-		console.warn(JSON.stringify(this._currentResources, null, 2));
+		
 	}
 
 	// --- Defense and Scaling ---
@@ -320,7 +325,7 @@ export class Attributes {
 		};
 	}
 
-	loadData(data: string | object): boolean {
+	load(data: string | object): boolean {
 		try {
 			const saveData = typeof data === "string" ? JSON.parse(data) : data;
 
@@ -340,6 +345,7 @@ export class Attributes {
 			] = saveData.b;
 
 			this.updateAllStats();
+			this.fillResource('all')
 			return true;
 		} catch (e) {
 			console.error(`Failed to load attributes for entity ${this.entity.id}: ${e}`);

@@ -85,10 +85,11 @@ export class Listener {
 	 * @param options Optional registration options.
 	 */
 	static register(
-		eventName: string,
+		eventName: Event | string,
 		callback: (event: Event) => void,
 		options: { priority?: number; ignoreCancelled?: boolean } = {}
 	): void {
+		if (eventName instanceof Event) eventName = eventName.eventName;
 		const handlers = HandlerListManager.getListFor(eventName);
 		const registration: HandlerRegistration = {
 			callEvent: callback,
@@ -105,7 +106,8 @@ export class Listener {
 	 * @param eventName The event name.
 	 * @param callback The callback function to remove.
 	 */
-	static unregister(eventName: string, callback: (event: Event) => void): void {
+	static unregister(eventName: Event | string, callback: (event: Event) => void): void {
+		if (eventName instanceof Event) eventName = eventName.eventName;
 		const handlers = HandlerListManager.getListFor(eventName);
 		const index = handlers.findIndex((h) => h.callEvent === callback);
 		if (index !== -1) {
@@ -117,7 +119,8 @@ export class Listener {
 	 * Clears all event registrations for the specified event.
 	 * @param eventName The event name.
 	 */
-	static clear(eventName: string): void {
+	static clear(eventName: Event | string): void {
+		if (eventName instanceof Event) eventName = eventName.eventName;
 		HandlerListManager.clearHandlers(eventName);
 	}
 }

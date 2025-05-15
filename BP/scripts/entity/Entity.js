@@ -7,7 +7,7 @@ export class Entity {
     }
     initEntity(data) {
         this.initialized = true;
-        this.attributes.loadData(data);
+        this.attributes.load(data);
     }
     onTick(currentTick) { }
     get id() {

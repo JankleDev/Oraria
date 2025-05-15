@@ -15,7 +15,7 @@ export class Entity implements IEntity {
 
 	public initEntity(data: { attributes: object }) {
 		this.initialized = true;
-		this.attributes.loadData(data);
+		this.attributes.load(data);
 	}
 
 	public onTick(currentTick: number) {}

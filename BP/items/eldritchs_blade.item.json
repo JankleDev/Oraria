@@ -10,7 +10,7 @@
 		},
 		"components": {
 			"minecraft:tags": {
-				"tags": ["single_hand_sword", "eldritchs_blade"]
+				"tags": ["minecraft:single_hand_sword", "minecraft:eldritchs_blade"]
 			},
 			"minecraft:max_stack_size": 1,
 			"minecraft:icon": {

@@ -7,14 +7,6 @@
 			"is_summonable": true,
 			"is_experimental": false
 		},
-		"properties": {
-			"hitbox:id": {
-				"type": "int",
-				"default": 0,
-				"range": [0, 25000],
-				"client_sync": true
-			}
-		},
 		"components": {
 			"minecraft:physics": {
 				"has_gravity": false,
@@ -32,14 +24,14 @@
 				"pull_in_entities": true,
 				"seats": [
 					{
-						"position": [0, 0, 0],
+						"position": [0, -0.1, 0],
 						"lock_rider_rotation": 0
 					}
 				]
 			},
 			"minecraft:collision_box": {
-				"width": 0,
-				"height": 0
+				"width": 0.001,
+				"height": 0.001
 			},
 			"minecraft:custom_hit_test": {
 				"hitboxes": [

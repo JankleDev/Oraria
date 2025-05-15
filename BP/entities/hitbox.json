@@ -7,18 +7,11 @@
 			"is_summonable": true,
 			"is_experimental": false
 		},
-		"properties": {
-                "hitbox:id":{
-                    "type": "int",
-                    "default": 0,
-                    "range": [0,25000],
-                    "client_sync": true
-                }
-		},
+		
 		"components": {
 			"minecraft:physics": {
-				"has_gravity": false,
-				"has_collision": false
+				"has_gravity": true,
+				"has_collision": true
 			},
 			"minecraft:pushable": {
 				"is_pushable": false
@@ -29,6 +22,15 @@
 			"minecraft:collision_box": {
 				"width": 1.5,
 				"height": 1.5
+			},
+			"minecraft:custom_hit_test": {
+				"hitboxes": [
+					{
+						"width": 1.5,
+						"height": 1.5,
+						"pivot": [0, 0.0005, 0]
+					}
+				]
 			},
 			"minecraft:type_family": { "family": ["hitbox"] },
 			"minecraft:damage_sensor": {

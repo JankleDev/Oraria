@@ -12,13 +12,10 @@ export class PlayerManager {
 			if (!initialSpawn) return;
 			try {
 				const rpgPlayer = new RPGPlayer(player);
-				const before = Date.now();
 				const data = await Oraria.playerStorage.getPlayerData(rpgPlayer, true);
-				const after = Date.now();
 				rpgPlayer.initEntity(data);
 				Oraria.entityHandler.registerEntity(rpgPlayer);
 				this.players.set(player.id, rpgPlayer);
-				console.warn("took: " + (after - before));
 			} catch (error) {
 				console.warn(`Failed to init player ${player.name}: ${error}`);
 			}

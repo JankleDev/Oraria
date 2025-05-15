@@ -4,7 +4,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
 var _a, _HitboxSystem_connectors, _HitboxSystem_hitboxes;
-import { world } from "@minecraft/server";
+import { system, world, Player } from "@minecraft/server";
 import { Errors } from "../util/Errors.js";
 export class HitboxSystem {
     constructor() {
@@ -30,21 +30,53 @@ export class HitboxSystem {
                 }
             }
         });
+        world.afterEvents.entityLoad.subscribe((event) => {
+            const entity = event.entity;
+            if (entity.typeId === _a.HITBOX_CONNECTOR_TYPE_ID ||
+                entity.typeId === _a.HITBOX_TYPE_ID) {
+                const entityRiding = entity.getComponent("riding");
+                if (!entityRiding) {
+                    system.run(() => {
+                        entity?.remove();
+                    });
+                }
+            }
+        });
+        world.afterEvents.entityHitEntity.subscribe((event) => {
+            const { damagingEntity, hitEntity } = event;
+            if (hitEntity.typeId === _a.HITBOX_TYPE_ID ||
+                hitEntity.typeId === _a.HITBOX_CONNECTOR_TYPE_ID) {
+                if (damagingEntity instanceof Player)
+                    console.warn(`leftClick detect from: ${damagingEntity.name}`);
+            }
+        });
+        world.beforeEvents.playerInteractWithEntity.subscribe((event) => {
+            const { player, target } = event;
+            if (target.typeId === _a.HITBOX_TYPE_ID ||
+                target.typeId === _a.HITBOX_CONNECTOR_TYPE_ID) {
+                console.warn(`rightClick detect from: ${player.name}`);
+            }
+        });
     }
     static registerPlayer(player) {
         const { dimension, location } = player;
         const connector = dimension.spawnEntity(_a.HITBOX_CONNECTOR_TYPE_ID, location);
+        if (!connector)
+            return;
         const hitbox = dimension.spawnEntity(_a.HITBOX_TYPE_ID, location);
+        if (!hitbox)
+            return;
         const playerRideable = player.getComponent("rideable");
-        const connectorRideable = connector?.getComponent("rideable");
+        const connectorRideable = connector.getComponent("rideable");
         if (playerRideable && connectorRideable) {
-            playerRideable.addRider(connector);
-            connectorRideable.addRider(hitbox);
+            system.runTimeout(() => {
+                playerRideable.addRider(connector);
+            }, 3);
+            system.runTimeout(() => {
+                connectorRideable.addRider(hitbox);
+            }, 8);
             __classPrivateFieldGet(this, _a, "f", _HitboxSystem_connectors).set(player.id, connector);
             __classPrivateFieldGet(this, _a, "f", _HitboxSystem_hitboxes).set(player.id, hitbox);
-        }
-        else {
-            console.warn(`Rideable component missing when registering hitbox for player ${player.name}`);
         }
     }
     static validatePlayer(player, registerIfMissing = true) {
@@ -60,8 +92,10 @@ export class HitboxSystem {
     static removePlayer(player) {
         const hitbox = __classPrivateFieldGet(this, _a, "f", _HitboxSystem_hitboxes).get(player.id);
         const connector = __classPrivateFieldGet(this, _a, "f", _HitboxSystem_connectors).get(player.id);
-        hitbox?.remove();
-        connector?.remove();
+        system.run(() => {
+            hitbox?.remove();
+            connector?.remove();
+        });
         __classPrivateFieldGet(this, _a, "f", _HitboxSystem_connectors).delete(player.id);
         __classPrivateFieldGet(this, _a, "f", _HitboxSystem_hitboxes).delete(player.id);
     }

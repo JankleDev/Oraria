@@ -119,14 +119,14 @@
 			"minecraft:rideable": {
 				"seat_count": 1,
 				"family_types": [
-					"player_hitbox"
+					"hitbox_connector"
 				],
 				"pull_in_entities": true,
 				"seats": [
 					{
 						"position": [
 							0,
-							-0.2,
+							-0.3,
 							0
 						],
 						"lock_rider_rotation": 0

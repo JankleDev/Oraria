@@ -21,7 +21,6 @@ export class EntityHandler {
         if (this.workerId !== null)
             return; // already ticking
         this.workerId = mc.system.runInterval(() => {
-            const players = mc.world.getAllPlayers();
             for (const entity of this.entities) {
                 if (entity.shouldTick === false)
                     continue;

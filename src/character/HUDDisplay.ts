@@ -49,7 +49,7 @@ export class HUDDisplay {
 		this.cachedMana = manaPercent;
 		this.cachedStamina = staminaPercent;
 
-		const title = `updateHUD:${healthPercent},${manaPercent},${staminaPercent}`;
+		const title = `updateHUD:${healthPercent}, ${manaPercent}, ${staminaPercent}`;
 		this.player.onScreenDisplay.setTitle(title, {
 			stayDuration: 1,
 			fadeInDuration: 0,
