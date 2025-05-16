@@ -1,19 +1,21 @@
 import * as mc from "@minecraft/server";
 import { Vector3 } from "@minecraft/server";
 import { Oraria } from "../Oraria";
+import { Vec3 } from "../math/Vector3";
 import { Entity } from "../entity/Entity";
 import { HUDDisplay } from "./HUDDisplay";
 import { Listener } from "../core/EventSystem";
 import { HitboxSystem } from "../core/HitboxSystem";
 import { Attributes } from "../entity/attribute/Attributes";
 import { PlayerInteractEvent } from "../events/PlayerInteractEvent";
-
+import { Ability, AbilityContext, InputTracker, ComboAbilityManager } from "./abilities/AbilitySystem";
 export class RPGPlayer extends Entity {
 	readonly #player: mc.Player;
 	initialized: boolean;
 	attributes: Attributes;
 	hud: HUDDisplay;
 
+	private abilities = new Map<string, Ability>();
 	private lastLeftClick: number;
 	private rollTime: number | undefined;
 	private rollCooldown: number | undefined;
@@ -66,40 +68,50 @@ export class RPGPlayer extends Entity {
 		Listener.register(
 			PlayerInteractEvent.NAME,
 			(event: PlayerInteractEvent) => {
-				const { player, viewDir, action } = event;
-				const currentTick = mc.system.currentTick;
-
-				// Only trigger if player recently left-clicked (within cooldown window)
-				if (
-					action === PlayerInteractEvent.LEFT_CLICK &&
-					currentTick - this.lastLeftClick <= this.ATTACK_COOLDOWN
-				) {
-					const origin = player.location;
-
-					const nearbyEntities = player.dimension.getEntities({
-						location: origin,
-						maxDistance: 6
-					});
-
-					for (const entity of nearbyEntities) {
-						const directionToEntity = {
-							x: entity.location.x - origin.x,
-							y: entity.location.y - origin.y,
-							z: entity.location.z - origin.z
-						};
-
-						const angle = calculateAngle(viewDir, directionToEntity);
-
-						if (angle >= -45 && angle <= 45) {
-							player.dimension.spawnParticle("minecraft:basic_flame_particle", entity.getHeadLocation());
-						}
-					}
-				}
-
-				this.lastLeftClick = currentTick;
+				this.handleClicks(event);
 			},
 			{ priority: 100 }
 		);
+	}
+
+	handleClicks(event: PlayerInteractEvent): void {
+		const { player, viewDir, action } = event;
+		const currentTick = mc.system.currentTick;
+
+		if (action === PlayerInteractEvent.LEFT_CLICK) {
+			if (currentTick - this.lastLeftClick <= this.ATTACK_COOLDOWN) {
+				this.sweep(player, viewDir);
+			}
+			this.lastLeftClick = currentTick;
+			ComboAbilityManager.handleInput(player, "L", currentTick);
+			this.hud.pushInput("L");
+		} else if (action === PlayerInteractEvent.RIGHT_CLICK) {
+			ComboAbilityManager.handleInput(player, "R", currentTick);
+			this.hud.pushInput("R");
+		}
+	}
+
+	sweep(player: mc.Player, viewDir: Vector3): void {
+		const origin = player.location;
+
+		const nearbyEntities = player.dimension.getEntities({
+			location: origin,
+			maxDistance: 6
+		});
+
+		for (const entity of nearbyEntities) {
+			const directionToEntity = {
+				x: entity.location.x - origin.x,
+				y: entity.location.y - origin.y,
+				z: entity.location.z - origin.z
+			};
+
+			const angle = Vec3.angle(viewDir, directionToEntity);
+
+			if (angle >= -45 && angle <= 45) {
+				player.dimension.spawnParticle("minecraft:basic_flame_particle", entity.getHeadLocation());
+			}
+		}
 	}
 
 	onTick(currentTick: number): void {
@@ -128,6 +140,14 @@ export class RPGPlayer extends Entity {
 			this.attributes.restoreStamina(Math.floor(maxStamina * 0.2));
 			this.attributes.restoreMana(Math.floor(maxMana * 0.07));
 		}
+	}
+
+	addAbility(ability: Ability) {
+		this.abilities.set(ability.id, ability);
+	}
+
+	useAbility(id: string, ctx: AbilityContext) {
+		this.abilities.get(id)?.use(ctx);
 	}
 
 	isUsingItem(): boolean {

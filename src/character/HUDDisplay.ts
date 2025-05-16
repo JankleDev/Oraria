@@ -1,13 +1,27 @@
-import { Player } from "@minecraft/server";
+import { system, Player } from "@minecraft/server";
 
 export class HUDDisplay {
 	private player: Player;
+	private inputHistory: string[] = [];
+
 	private cachedHealth: number = -1;
 	private cachedMana: number = -1;
 	private cachedStamina: number = -1;
 
 	constructor(player: Player) {
 		this.player = player;
+	}
+
+	pushInput(input: "L" | "R"): void {
+		if (this.inputHistory.length === 3) {
+			// Reset once combo is full
+			this.inputHistory = [];
+		}
+
+		this.inputHistory.push(input);
+		system.run(() => {
+			this.displayHUD();
+		});
 	}
 
 	update({
@@ -49,12 +63,23 @@ export class HUDDisplay {
 		this.cachedMana = manaPercent;
 		this.cachedStamina = staminaPercent;
 
-		const title = `updateHUD:${healthPercent}, ${manaPercent}, ${staminaPercent}`;
+		this.displayHUD();
+	}
+
+	private displayHUD(): void {
+		const title = `updateHUD:${this.cachedHealth}, ${this.cachedMana}, ${this.cachedStamina}`;
+
+		// Fill remaining slots with '?'
+		const padded = [...this.inputHistory];
+		while (padded.length < 3) padded.push("?");
+
+		const subtitle = "§a" + padded.join(" - ");
+
 		this.player.onScreenDisplay.setTitle(title, {
-			stayDuration: 1,
-			fadeInDuration: 0,
-			fadeOutDuration: 0,
-			subtitle: ""
+			stayDuration: 4,
+			fadeInDuration: 2,
+			fadeOutDuration: 1,
+			subtitle
 		});
 	}
 }

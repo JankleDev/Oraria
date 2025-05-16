@@ -46,24 +46,6 @@ export class HitboxSystem {
 				}
 			}
 		});
-		world.afterEvents.entityHitEntity.subscribe((event) => {
-			const { damagingEntity, hitEntity } = event;
-			if (
-				hitEntity.typeId === HitboxSystem.HITBOX_TYPE_ID ||
-				hitEntity.typeId === HitboxSystem.HITBOX_CONNECTOR_TYPE_ID
-			) {
-				if (damagingEntity instanceof Player) console.warn(`leftClick detect from: ${damagingEntity.name}`);
-			}
-		});
-		world.beforeEvents.playerInteractWithEntity.subscribe((event) => {
-			const { player, target } = event;
-			if (
-				target.typeId === HitboxSystem.HITBOX_TYPE_ID ||
-				target.typeId === HitboxSystem.HITBOX_CONNECTOR_TYPE_ID
-			) {
-				console.warn(`rightClick detect from: ${player.name}`);
-			}
-		});
 	}
 
 	static registerPlayer(player: Player): void {

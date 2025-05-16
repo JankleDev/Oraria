@@ -1,5 +1,5 @@
 import { Player, Entity, Vector3, ItemStack } from "@minecraft/server";
-import { Event } from "../core/EventSystem";
+import { Event } from "../core/EventSystem"
 
 export class PlayerInteractEvent extends Event {
 	static readonly NAME = "PlayerInteractEvent";

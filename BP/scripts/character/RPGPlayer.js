@@ -12,15 +12,18 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
 var _RPGPlayer_player;
 import * as mc from "@minecraft/server";
 import { Oraria } from "../Oraria";
+import { Vec3 } from "../math/Vector3";
 import { Entity } from "../entity/Entity";
 import { HUDDisplay } from "./HUDDisplay";
 import { Listener } from "../core/EventSystem";
 import { HitboxSystem } from "../core/HitboxSystem";
 import { PlayerInteractEvent } from "../events/PlayerInteractEvent";
+import { ComboAbilityManager } from "./abilities/AbilitySystem";
 export class RPGPlayer extends Entity {
     constructor(player) {
         super(player);
         _RPGPlayer_player.set(this, void 0);
+        this.abilities = new Map();
         this.startAction = -1;
         this.ROLL_COOLDOWN = 5; // in ticks
         this.ATTACK_COOLDOWN = 3;
@@ -58,30 +61,42 @@ export class RPGPlayer extends Entity {
         });
         // Register listener for detecting clicks
         Listener.register(PlayerInteractEvent.NAME, (event) => {
-            const { player, viewDir, action } = event;
-            const currentTick = mc.system.currentTick;
-            // Only trigger if player recently left-clicked (within cooldown window)
-            if (action === PlayerInteractEvent.LEFT_CLICK &&
-                currentTick - this.lastLeftClick <= this.ATTACK_COOLDOWN) {
-                const origin = player.location;
-                const nearbyEntities = player.dimension.getEntities({
-                    location: origin,
-                    maxDistance: 6
-                });
-                for (const entity of nearbyEntities) {
-                    const directionToEntity = {
-                        x: entity.location.x - origin.x,
-                        y: entity.location.y - origin.y,
-                        z: entity.location.z - origin.z
-                    };
-                    const angle = calculateAngle(viewDir, directionToEntity);
-                    if (angle >= -45 && angle <= 45) {
-                        player.dimension.spawnParticle("minecraft:basic_flame_particle", entity.getHeadLocation());
-                    }
-                }
+            this.handleClicks(event);
+        }, { priority: 100 });
+    }
+    handleClicks(event) {
+        const { player, viewDir, action } = event;
+        const currentTick = mc.system.currentTick;
+        if (action === PlayerInteractEvent.LEFT_CLICK) {
+            if (currentTick - this.lastLeftClick <= this.ATTACK_COOLDOWN) {
+                this.sweep(player, viewDir);
             }
             this.lastLeftClick = currentTick;
-        }, { priority: 100 });
+            ComboAbilityManager.handleInput(player, "L", currentTick);
+            this.hud.pushInput("L");
+        }
+        else if (action === PlayerInteractEvent.RIGHT_CLICK) {
+            ComboAbilityManager.handleInput(player, "R", currentTick);
+            this.hud.pushInput("R");
+        }
+    }
+    sweep(player, viewDir) {
+        const origin = player.location;
+        const nearbyEntities = player.dimension.getEntities({
+            location: origin,
+            maxDistance: 6
+        });
+        for (const entity of nearbyEntities) {
+            const directionToEntity = {
+                x: entity.location.x - origin.x,
+                y: entity.location.y - origin.y,
+                z: entity.location.z - origin.z
+            };
+            const angle = Vec3.angle(viewDir, directionToEntity);
+            if (angle >= -45 && angle <= 45) {
+                player.dimension.spawnParticle("minecraft:basic_flame_particle", entity.getHeadLocation());
+            }
+        }
     }
     onTick(currentTick) {
         if (__classPrivateFieldGet(this, _RPGPlayer_player, "f").isSneaking) {
@@ -108,6 +123,12 @@ export class RPGPlayer extends Entity {
             this.attributes.restoreStamina(Math.floor(maxStamina * 0.2));
             this.attributes.restoreMana(Math.floor(maxMana * 0.07));
         }
+    }
+    addAbility(ability) {
+        this.abilities.set(ability.id, ability);
+    }
+    useAbility(id, ctx) {
+        this.abilities.get(id)?.use(ctx);
     }
     isUsingItem() {
         return this.startAction > -1;

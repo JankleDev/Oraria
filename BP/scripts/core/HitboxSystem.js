@@ -4,7 +4,7 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
 };
 var _a, _HitboxSystem_connectors, _HitboxSystem_hitboxes;
-import { system, world, Player } from "@minecraft/server";
+import { system, world } from "@minecraft/server";
 import { Errors } from "../util/Errors.js";
 export class HitboxSystem {
     constructor() {
@@ -40,21 +40,6 @@ export class HitboxSystem {
                         entity?.remove();
                     });
                 }
-            }
-        });
-        world.afterEvents.entityHitEntity.subscribe((event) => {
-            const { damagingEntity, hitEntity } = event;
-            if (hitEntity.typeId === _a.HITBOX_TYPE_ID ||
-                hitEntity.typeId === _a.HITBOX_CONNECTOR_TYPE_ID) {
-                if (damagingEntity instanceof Player)
-                    console.warn(`leftClick detect from: ${damagingEntity.name}`);
-            }
-        });
-        world.beforeEvents.playerInteractWithEntity.subscribe((event) => {
-            const { player, target } = event;
-            if (target.typeId === _a.HITBOX_TYPE_ID ||
-                target.typeId === _a.HITBOX_CONNECTOR_TYPE_ID) {
-                console.warn(`rightClick detect from: ${player.name}`);
             }
         });
     }

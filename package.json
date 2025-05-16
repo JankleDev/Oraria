@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@madlad3718/mcveclib": "^0.3.2",
     "@minecraft/server": "^2.1.0-beta.1.21.90-preview.21",
     "@minecraft/server-ui": "^2.1.0-beta.1.21.90-preview.21"
   }
